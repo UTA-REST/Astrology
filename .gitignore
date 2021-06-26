@@ -1,0 +1,8 @@
+# vim swap files
+*.swp
+
+# notebook checkpoints
+.ipynb_checkpoints/*
+
+# compiled files 
+*.pyc
