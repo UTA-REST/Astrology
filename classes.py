@@ -23,7 +23,17 @@ def get_constellation(sk):
     """
     if not isinstance(sk, SkyCoord):
         raise TypeError("Expected {}, got {}".format(SkyCoord, type(sk)))
-    lon = sk.ra.value
+
+    # the skycoord class is really *really* dumb, and has inconsistent class attributes depending on how it was instantiated
+    # like, this is monumentally stupid design. 
+    # I cannot fathom *why* anyone would ever do this 
+    # this is so frustratingly stupid. 
+    #   I thought the WHOLE point of a coordinate class was to do away with the ambiguities of how we define a direction?? But instead you just keep all the ambiguities?? 
+    if hasattr(sk, "ra"):
+        lon = sk.ra.value
+    else:
+        lon = sk.icrs.ra.value
+
     coord = int(lon/30.)
     return _constellations[coord]
     
