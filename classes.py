@@ -137,6 +137,7 @@ class GCNEvent:
         self._is_prime_runno = is_prime(int(self.r_dict["RUN_NUM"])) 
 
         self._energy = self.parse_energy()
+        self._charge = self.parse_charge()
         self._is_track = "track" in self.r_dict["NOTICE_TYPE"].lower()
         self._time = self.parse_time() #astropy Time object! 
 
@@ -164,16 +165,25 @@ class GCNEvent:
         return self._prime
 
     def parse_energy(self):
-        unit_str = self.r_dict["ENERGY"].split("[")[1].split("]")[0]
-        unit_scale = 1.0
-        if unit_str=="GeV":
-            pass
-        elif unit_str=="TeV":
-            unit_scale = 1e3
-        elif unit_str=="PeV":
-            unit_scale = 1e6
+        if 'ENERGY' in self.r_dict.keys():
+            unit_str = self.r_dict["ENERGY"].split("[")[1].split("]")[0]
+            unit_scale = 1.0
+            if unit_str=="GeV":
+                pass
+            elif unit_str=="TeV":
+                unit_scale = 1e3
+            elif unit_str=="PeV":
+                unit_scale = 1e6
 
-        return unit_scale*float(self.r_dict["ENERGY"].split("[")[0])
+            return unit_scale*float(self.r_dict["ENERGY"].split("[")[0])
+        else:
+            return 0
+
+    def parse_charge(self):
+        if 'CHARGE' in self.r_dict.keys():
+            return float(self.r_dict["CHARGE"].split("[")[0])
+        else:
+            return 0
 
     def parse_coords(self):
         coord = self.r_dict['ECL_COORDS'].split(",")
