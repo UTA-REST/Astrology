@@ -4,6 +4,9 @@ import numpy as np
 from classes import User, GCNEvent
 from horoscope import make_horoscope
 
+from datetime import datetime
+import requests
+
 port = 465
 
 astrodir = os.path.join(os.path.expandvars("$HOME"), ".local","mmAstro")
@@ -44,11 +47,11 @@ def email_all(event):
             Subject: Your Neutrinoly Horoscope
 
             """
-            message += "Dear, {}\n".format(this_user.name)
+            message += "Dear {},\n".format(this_user.name)
             message += this_horoscope
             
             print(message)
-            #server.sendmail(sender_email, dest_email, message)
+            server.sendmail(sender_email, dest_email, message)
 
         print("Sent email to {}".format(this_user.name))
 
@@ -130,8 +133,6 @@ def getthem():
 
     return results
 
-from datetime import datetime
-import requests
 def is_datelike(segment):
     return len(segment.split("/"))==3
 def is_timelike(segment):
@@ -197,6 +198,7 @@ def update():
     if len(urls)==0:
         return # nothing new 
     else: 
+        print("Found something new")
         # AAAAAHH! 
         for url in urls:
             # get the event for each url (should only ever be one...) 
@@ -205,9 +207,9 @@ def update():
             event = GCNEvent(r)
             email_all(event)
         
-       # f = open(os.path.join(astrodir, "last_sent.dat"), 'wt')
-       # f.write("{}/{}/{}\n".format(today.year, today.month, today.day))
-       # f.close()
+        f = open(os.path.join(astrodir, "last_sent.dat"), 'wt')
+        f.write("{}/{}/{}\n".format(today.year, today.month, today.day))
+        f.close()
         
 
 if __name__=="__main__":

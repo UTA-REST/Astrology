@@ -22,6 +22,10 @@ We've written two datatypes (`classes.py`),
 Use crontab to regularly call a python script checking email. 
 This function will support the actions below 
 
+```
+*/5 * * * * /usr/bin/python3.8 /path/to/emailing.py
+```
+
 ### Actions
 
 - neutrino event email. It checks the sender and verifies it's from the gcn people. Then it parses the email, and writes a horoscope for everyone on the email list 
