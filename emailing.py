@@ -43,7 +43,7 @@ def email_all(event):
             this_horoscope = make_horoscope(this_user, event)
 
             message = """\
-            From: Multi-Messenger Astrology Specialists at UTA\n
+            From: The Multi-Messenger Astrology Specialists\n
             Subject: Your Neutrinoly Horoscope
 
             """
