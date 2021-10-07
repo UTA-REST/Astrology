@@ -3,6 +3,7 @@ import os
 import numpy as np
 from classes import User, GCNEvent
 from horoscope import make_horoscope
+from email.message import EmailMessage
 
 from datetime import datetime
 import requests
@@ -35,23 +36,37 @@ def email_all(event):
 
         this_user = User(row)
         horoscope = "" 
-
+        print("Sending email to {}".format(this_user.name))
         with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
             server.login(sender_email, password)
             
-            dest_email = this_user.email
-            this_horoscope = make_horoscope(this_user, event)
+            msg = EmailMessage()
 
-            message = """\
-            From: The Multi-Messenger Astrology Specialists\n
-            Subject: Your Neutrinoly Horoscope
+            split = (this_user.name).split(" ")
+            i_use = 0
+            while split[i_use]=="":
+                i_use+=1 
+                if i_use==len(split):
+                    break
+            if i_use==len(split):
+                # no non-empty name found This is a bad entry! 
+                print("Bad name? {}".format(this_user.name))
+                break
 
-            """
-            message += "Dear {},\n".format(this_user.name)
-            message += this_horoscope
+
+            this_horoscope = make_horoscope(this_user, event) 
+            msg_text = "Dear {},\n".format(split[i_use])
+            msg_text += this_horoscope
+
+            msg.set_content( msg_text )
             
-            print(message)
-            server.sendmail(sender_email, dest_email, message)
+            msg["To"]       = this_user.email
+            msg["From"]     = "The Multi-Messenger Astrology Specialists"
+            msg["Subject"]  = "Your Neutrinoly Horoscope"
+            
+            
+            server.send_message( msg )
+#            server.sendmail(sender_email, dest_email, message)
 
         print("Sent email to {}".format(this_user.name))
 
@@ -169,13 +184,13 @@ def get_since_day(date):
                 else:
                     last_date = this_date 
 
-                    if this_date < date:
-                        break
+                    if this_date <= date:
+                        continue
                     else:
                         urls.append("https://gcn.gsfc.nasa.gov/"+addy)
             if is_timelike(parsed):
                 continue
-    print(urls[::-1])
+#    print(urls[::-1])
     return urls[::-1]
 
 def update():
@@ -196,6 +211,7 @@ def update():
     # check if anything new has come in! 
     urls = get_since_day(last_sent_date)
     if len(urls)==0:
+        print("Nothing to update")
         return # nothing new 
     else: 
         print("Found something new")
