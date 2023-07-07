@@ -5,10 +5,21 @@ from numpy.random import randint as rand
 
 from classes import User, GCNEvent, get_constellation
 from astropy.coordinates import get_body
+from astropy.coordinates import solar_system_ephemeris
+solar_system_ephemeris.set('de432s')
+
+from conjunction import get_user_neutrino_sign
+import os 
 
 options = ["a good", "an okay", "a bad"]
 
 days =["Monday", "Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+
+import json
+corpus_f = open(os.path.join(os.path.dirname(__file__), "corpus.json"), 'r')
+corpus_json = json.load(corpus_f)
+corpus_f.close()
+
 
 def make_horoscope( user_obj, event):
     if not isinstance(user_obj, User):
@@ -18,12 +29,37 @@ def make_horoscope( user_obj, event):
 
     time = event.time.datetime.isoweekday()
 
+    special, constellation = get_user_neutrino_sign(user_obj, event)
+
+    note = ""
+    if special!="":
+        note += "This event came from your {}-sign, {}, ".format(special[0].upper() + special[1:], constellation)
+
+        mastery = corpus_json["planet_houses"][special]
+        main_thing = random.choice(corpus_json["planet_assoc"][special])
+        if len(mastery)==1:
+            note += "which is the master of the {} house. ".format(mastery[0])
+
+            first = random.choice(corpus_json["house_nouns"][mastery[0]])
+            second = first
+            while second==first:
+                second = random.choice(corpus_json["house_nouns"][mastery[0]])
+
+            note += "The neutrino carries with it an influence on your {} with your {} and {}.".format(main_thing, first, second)
+        else:
+            note += "which is the master of the {} and {} houses. ".format(mastery[0], mastery[1])
+
+            first = random.choice(corpus_json["house_nouns"][mastery[0]])
+            second = random.choice(corpus_json["house_nouns"][mastery[1]])
+
+            note += "The neutrino carries an influence on your {} with regards to your {} and {}. ".format(main_thing, first, second)
+            note += random.choice(corpus_json["confusion"])
+
 
     
-    where = "On {}, a neutrino appeared to come from {}.".format(days[time-1], get_constellation(event.coords))
 
 
-# We make three lists of statements:
+    # We make three lists of statements:
     # 1. DefiniteStatements: A list of statements we will definitely make, 
     # 2. OptionalStatements: A list we can randomly pick from to fill out the horoscope
     OptionalStatements=[]
@@ -55,10 +91,10 @@ def make_horoscope( user_obj, event):
             "Astrotrack events are caused by muons that draw a straight line of light through the antarctic glacial ice, pointing back to their distant astrophysical sources.  Consider seeking a lit path to follow toward your destination, however distant it may feel."])
         EventTypeStr='neutrino track event'
 
-    DefiniteStatements.append("On {}, the IceCube Neutrino Telescope detected a ".format(days[time-1])+EventTypeStr+ " that was likely induced by a high energy astrophysical neutrino produced in a distant galaxy, interacting in the glacial ice of the South Pole.")
-    
+    DefiniteStatements.append("On {}, the IceCube Neutrino Observatory detected a ".format(days[time-1])+EventTypeStr+ " that was likely induced by a high energy astrophysical neutrino produced in a distant galaxy, interacting in the glacial ice of the South Pole.")
+    DefiniteStatements.append(note)
     DefiniteStatements.append("\n")
-    DefiniteStatements.append("The event came from the direction of the zodiac sign "+ZodiacSign+", which occupies a range of ecliptic longitudes "+ str(int(event.lon/30)*30) + " to " + str(int(event.lon/30)*30+30)+ " degrees. The neutrino detected by IceCube came from ecliptic longitude and latitude " +str(event.lon)+", " +str(event.lat)+".")
+    DefiniteStatements.append(ZodiacSign+" occupies a range of ecliptic longitudes "+ str(int(event.lon/30)*30) + " to " + str(int(event.lon/30)*30+30)+ " degrees. The neutrino detected by IceCube came from ecliptic longitude and latitude " +str(event.lon)+", " +str(event.lat)+".")
     DefiniteStatements.append("\n")
     DefiniteStatements.append(EventTypeStatement)
     DefiniteStatements.append("\n")

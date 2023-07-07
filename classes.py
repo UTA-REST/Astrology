@@ -2,9 +2,10 @@ from time import time as unix_time
 from astropy.time import Time 
 from astropy.coordinates import SkyCoord, EarthLocation
 from astropy.coordinates import  get_body
+from astropy.coordinates import solar_system_ephemeris
+solar_system_ephemeris.set('de432s')
 
 from datetime import datetime
-
 from math import sqrt
 from itertools import count, islice
 

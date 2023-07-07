@@ -1,0 +1,59 @@
+{
+    "house_nouns":{
+        "first":[ "self", "beginning","physical appearance", "personality"],
+        "second": ["money", "material possessions", "income"],
+        "third":["communication", "emotion", "mental state", "sense of self-expression", "siblings (if you have any)", "neighbors"],
+        "fourth":["home","family"],
+        "fifth":["creativity", "desires to gamble", "imagination", "pleasure", "romance"],
+        "sixth":["work","health","diet","job","one of your many responsibilities"],
+        "seventh":["relationships", "commitments, or at least one of them", "marriage", "business partnerships"],
+        "eighth":["joint finance", "tax", "debt", "death", "legacy","skill","ability"],
+        "ninth":["mental exploration","spirituality","religion","long-distance travel","higher education","publishing"],
+        "tenth":["career", "reputation", "social life", "public reputation"],
+        "eleventh":["friendship", "clubs", "hopes", "wishes"],
+        "twelfth":["past"," subconscious", "dreams", "secret", "childhood"]
+    },
+    "planet_houses":{
+        "mars":["first"],
+        "venus":["second", "seventh"],
+        "mercury":["third", "sixth"],
+        "moon":["fourth"],
+        "sun":["fifth"],
+        "pluto":["eighth"],
+        "jupiter":["ninth"],
+        "saturn":["tenth"],
+        "uranus":["eleventh"],
+        "neptune":["twelfth"]
+    },
+    "planet_assoc":{
+        "mars":["personal strife", "physical energy", "efforts","risk-taking behavior"],
+        "venus":["social attitude", "behavior", "romance", "romance", "partnerships", "thyroid gland"],
+        "mercury":["ideas", "methods", "information","dexterity", "mechanical skills", "mental outlook","intellectual endeavors"],
+        "moon":["expediency", "reasoning", "self-esteem", "way of working with others"],
+        "sun":["ego", "power", "core", "personality", "brain", "heart"],
+        "pluto":["atomic energy","being really cool", "generation","karma"],
+        "jupiter":["luck","growth", "expansion", "optimism", "power"],
+        "saturn":["responsibilities","restrictions","limitations", "time", "gallbladder"],
+        "uranus":["societal freedom", "thought", "expression", "unpredictability","technology", "computers"],
+        "neptune":["feelings of being oppressed", "your feelings of being abandoned","guilt", "persecution", "disilluisionment","glamor","charisma"]
+    },
+    "confusion":[
+        "Such a message may be complicated, and difficult to unravel. ",
+        "There are many influences at play here, and much thought must be given to uncover the messages from the stars. ",
+        "Think hard about what this may mean for you. ", 
+        "Consider these aspects and how they may manifest for you. "
+    ],
+    "adjectives":{
+        "bad_desc":["bad", "terrible"],
+        "poor_desc":["poor"],
+        "good_desc":["good"],
+        "great_desc":["fortuitous", "splendid", "ideal" ]
+    },
+    "modifiers":{
+        "work": [" which will yield greatness with equal work on your part", " balance the two, and the product will be greater than the sum of parts."],
+        "struggle": [" with great struggle"],
+        "synergy":[" will combine their elements in a powerful synergy"," whose energies will blend"],
+        "clash":[" the elements will clash disasterously", " such an sign will cause struggle."],
+        "bless":[]
+    }
+}

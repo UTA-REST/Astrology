@@ -8,6 +8,21 @@ from email.message import EmailMessage
 from datetime import datetime
 import requests
 
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+
+import base64
+from email.message import EmailMessage
+
+import google.auth
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+
 port = 465
 
 astrodir = os.path.join(os.path.expandvars("$HOME"), ".local","mmAstro")
@@ -19,56 +34,85 @@ f.close()
 
 sender_email = "multimessengerastrology@gmail.com"
 
+SCOPES = ['https://mail.google.com/']
+
+
 def email_all(event):
     if not isinstance(event, GCNEvent):
         raise TypeError("Need {} to email list, not {}".format(GCNEvent, type(event)))
 
     email_file = "email_list.csv"
+    #email_file = "test_list.csv"
     fname = os.path.join(astrodir, email_file)
+    #fname = "./"+email_file
     data = np.loadtxt(fname, dtype="str", delimiter=",")
+
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        # Save the credentials for the next run
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
 
     if type(data[0])==np.str_: # if there's only one email, it's loaded in as a 1D array of strings, not a 2D array 
         # I hate this workaround 
         data = [list(data)]
+
+    service = build('gmail', 'v1', credentials=creds)
+    results = service.users().labels().list(userId='me').execute()
     for row in data:
         row = ",".join(row)
         context = ssl.create_default_context()
 
         this_user = User(row)
         horoscope = "" 
+
         print("Sending email to {}".format(this_user.name))
-        with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-            server.login(sender_email, password)
-            
-            msg = EmailMessage()
 
-            split = (this_user.name).split(" ")
-            i_use = 0
-            while split[i_use]=="":
-                i_use+=1 
-                if i_use==len(split):
-                    break
+            
+        msg = EmailMessage()
+
+        split = (this_user.name).split(" ")
+        i_use = 0
+        while split[i_use]=="":
+            i_use+=1 
             if i_use==len(split):
-                # no non-empty name found This is a bad entry! 
-                print("Bad name? {}".format(this_user.name))
                 break
+        if i_use==len(split):
+            # no non-empty name found This is a bad entry! 
+            print("Bad name? {}".format(this_user.name))
+            break
 
 
-            this_horoscope = make_horoscope(this_user, event) 
-            msg_text = "Dear {},\n".format(split[i_use])
-            msg_text += this_horoscope
+        this_horoscope = make_horoscope(this_user, event) 
+        msg_text = "Dear {},\n".format(split[i_use])
+        msg_text += this_horoscope
 
-            msg.set_content( msg_text )
-            
-            msg["To"]       = this_user.email
-            msg["From"]     = "The Multi-Messenger Astrology Specialists"
-            msg["Subject"]  = "Your Neutrinoly Horoscope"
-            
-            
-            server.send_message( msg )
-#            server.sendmail(sender_email, dest_email, message)
+        msg.set_content( msg_text )
+        
+        msg["To"]       = this_user.email
+        msg["From"]     = "The Multi-Messenger Astrology Specialists"
+        msg["Subject"]  = "Your Neutrinoly Horoscope"
 
+        encoded_message = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+
+        create_message = {
+                    'raw': encoded_message
+            }
+        
         print("Sent email to {}".format(this_user.name))
+        
+        send_message = (service.users().messages().send
+                        (userId="me", body=create_message).execute())
+        
+        
 
 # Importing libraries
 import imaplib, email
@@ -202,7 +246,7 @@ def update():
     f.close()
     last_sent_date = datetime(int(line[0]), int(line[1]), int(line[2]))
 
-    today_dt = datetime.today()
+    today_dt = datetime.utcnow()
     today = datetime(today_dt.year, today_dt.month, today_dt.day)
     if last_sent_date==today:
         # max one email per day!
@@ -217,6 +261,7 @@ def update():
         print("Found something new")
         # AAAAAHH! 
         for url in urls:
+            print("Grabbing from {}".format(url))
             # get the event for each url (should only ever be one...) 
             r = str(requests.get(url, allow_redirects=True).content)
             r = r.split("\\n")
